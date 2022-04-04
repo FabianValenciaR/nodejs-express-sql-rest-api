@@ -1,4 +1,5 @@
 export const querys = {
+  updateTimeZone: "UPDATE T_SYS_REGION_TIMEZONE SET time_zone = 'America/Guayaquil' WHERE id = 7",
   getAllTimeZones: "SELECT * FROM T_SYS_REGION_TIMEZONE",
   getAllProducts: "SELECT TOP(500) * FROM [webstore].[dbo].[Products]",
   getProducById: "SELECT * FROM Products Where Id = @Id",

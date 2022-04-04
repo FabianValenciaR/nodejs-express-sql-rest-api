@@ -2,10 +2,10 @@ import sql from "mssql";
 import config from "../config";
 
 export const dbSettings = {
-  user: config.dbUser,
-  password: config.dbPassword,
-  server: config.dbServer,
-  database: config.dbDatabase,
+  user: "PowerUser",
+  password: "k8a3z7up",
+  server: "localhost",
+  database: "XETUXPOS",
   options: {
     encrypt: true, // for azure
     trustServerCertificate: true, // change to true for local dev / self-signed certs
