@@ -1,10 +1,12 @@
 import { Router } from "express";
 
-import { getReceiptParameters, getTimeZone, setGeneralConfigurations, setReceiptParameters, setTimeZone } from '../controllers/general.controller'
+import { genericSelect, genericUpdate, getReceiptParameters, getTimeZone, setGeneralConfigurations, setReceiptParameters, setTimeZone } from '../controllers/general.controller'
 
 const router = Router();
 
 router.get("/general", setGeneralConfigurations);
+router.post("/generic-select", genericSelect);
+router.post("/generic-update", genericUpdate);
 
 router.get("/time-zone", getTimeZone);
 router.post("/time-zone", setTimeZone);
