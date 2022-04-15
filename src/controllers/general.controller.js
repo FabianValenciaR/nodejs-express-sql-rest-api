@@ -52,10 +52,32 @@ export const setTimeZone = async (req, res) => {
  * @param {*} req 
  * @param {*} res 
  */
- export const getReceiptParameters = async (req, res) => {
+export const getReceiptParameters = async (req, res) => {
   try {
     const pool = await getConnection();
     const result = await pool.request().query(querys.selectReceiptParameters);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+}
+
+/**
+* setTimeZone sets the time_zone parameters
+* 
+* @param {*} req 
+* @param {*} res 
+*/
+export const setReceiptParameters = async (req, res) => {
+  try {
+    const records = req.body;
+    let query = "";
+    records.forEach(record => {
+      query += `UPDATE T_POS_RECEIPT_FISCAL_PRINTER SET receipt_description = '${record.value}' WHERE receipt_id = ${record.key};`
+    });
+    const pool = await getConnection();
+    const result = await pool.request().query(query);
     res.json(result.recordset);
   } catch (error) {
     res.status(500);
