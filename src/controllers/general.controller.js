@@ -15,7 +15,7 @@ export const setGeneralConfigurations = async (req, res) => {
 /**
 * genericUpdate sets a general update
 * 
-* @param {*} req 
+* @param {*} req {tableName: "NAME", records: [{setProperty: id, setValue: 1, conditionProperty: year, conditionValue: 1996}]}
 * @param {*} res 
 */
 export const genericUpdate = async (req, res) => {
