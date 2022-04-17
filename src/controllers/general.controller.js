@@ -166,14 +166,37 @@ export const getNotificationEmails = async (req, res) => {
 */
 export const setNotificationEmails = async (req, res) => {
   try {
-    const records = req.body;
-    let query = "";
-    records.forEach(record => {
-      query += `UPDATE T_POS_RECEIPT_FISCAL_PRINTER SET receipt_description = '${record.value}' WHERE receipt_id = ${record.key};`
-    });
+    let response;
+    const records = req.body[0];
+    const id = records.id;
+    const email = records.email;
+    const notifyInventory = records.notifyInventory ? '1' : '0';
+    const notifySales = records.notifySales ? '1' : '0';
+    let selectQuery = `SELECT * FROM DESTINATARIO 
+                  WHERE Correo = '${id}';`;
+
     const pool = await getConnection();
-    const result = await pool.request().query(query);
-    res.json(result.recordset);
+    const selectReponse = await pool.request().query(selectQuery);
+
+    if (selectReponse.rowsAffected[0] !== 0) {
+
+      let updateQuery = `UPDATE DESTINATARIO 
+                  SET Correo = '${email}', 
+                  EnviarInventario = '${notifyInventory}', 
+                  EnviarVentas = '${notifySales}' 
+                  WHERE Correo = '${id}';`;
+      response = await pool.request().query(updateQuery);
+
+    } else {
+
+      let insertQuery = `INSERT INTO DESTINATARIO 
+                          (Correo, EnviarInventario, EnviarVentas)
+                          VALUES ('${email}', '${notifyInventory}', '${notifySales}');`
+      response = await pool.request().query(insertQuery);
+
+    }
+
+    res.json(response.recordset);
   } catch (error) {
     res.status(500);
     res.send(error.message);
@@ -227,7 +250,7 @@ export const setXONEConfig = async (req, res) => {
  * @param {*} req 
  * @param {*} res 
  */
- export const getDashboardConfig = async (req, res) => {
+export const getDashboardConfig = async (req, res) => {
   try {
     const pool = await getConnection();
     const result = await pool.request().query(querys.selectDashboardConfig);
@@ -244,7 +267,7 @@ export const setXONEConfig = async (req, res) => {
  * @param {*} req 
  * @param {*} res 
  */
- export const setDashboardConfig = async (req, res) => {
+export const setDashboardConfig = async (req, res) => {
   try {
     const url = req.body[0]["value"];
     console.log(url);
