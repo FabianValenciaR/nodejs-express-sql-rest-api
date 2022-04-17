@@ -204,6 +204,34 @@ export const setNotificationEmails = async (req, res) => {
 };
 
 /**
+ * deleteNotificationEmails delete an email from the table
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const deleteNotificationEmails = async (req, res) => {
+  try {
+    let email = req.params.email;
+    // let selectQuery = `SELECT * FROM DESTINATARIO 
+    //               WHERE Correo = '${email}';`;
+
+    // const selectReponse = await pool.request().query(selectQuery);
+    // if (selectReponse.rowsAffected[0] !== 0) {
+
+
+    // }
+    const pool = await getConnection();
+    let deleteQuery = `DELETE FROM DESTINATARIO WHERE Correo = '${email}';`;
+    const result = await pool.request().query(deleteQuery);
+
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+}
+
+/**
  * getNotificationEmails gets the emails for notifications
  * 
  * @param {*} req 
