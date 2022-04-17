@@ -140,3 +140,83 @@ export const setReceiptParameters = async (req, res) => {
     res.send(error.message);
   }
 };
+
+/**
+ * getNotificationEmails gets the emails for notifications
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const getNotificationEmails = async (req, res) => {
+  try {
+    const pool = await getConnection();
+    const result = await pool.request().query(querys.selectNotificationEmails);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+}
+
+/**
+* setNotificationEmails sets the emails for notifications
+* 
+* @param {*} req  { id: "123", email: "test@test.com", notifyInventory: "1", notifySales: "0" }
+* @param {*} res 
+*/
+export const setNotificationEmails = async (req, res) => {
+  try {
+    const records = req.body;
+    let query = "";
+    records.forEach(record => {
+      query += `UPDATE T_POS_RECEIPT_FISCAL_PRINTER SET receipt_description = '${record.value}' WHERE receipt_id = ${record.key};`
+    });
+    const pool = await getConnection();
+    const result = await pool.request().query(query);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+};
+
+/**
+ * getNotificationEmails gets the emails for notifications
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const getXONEConfig = async (req, res) => {
+  try {
+    const pool = await getConnection();
+    const result = await pool.request().query(querys.selectXONEConfig);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+}
+
+
+/**
+* setXONEConfig sets the XONE config parameters
+* 
+* @param {*} req 
+* @param {*} res 
+*/
+export const setXONEConfig = async (req, res) => {
+  try {
+    console.log();
+
+    const idBranch = req.body.filter((field) => field.key === 'idBranch')[0].value;
+    const reportSyncUrlService = req.body.filter((field) => field.key === 'reportSyncUrlService')[0].value;
+    let query = `UPDATE T_XSC_CONFIG 
+                  SET idBranch = '${idBranch}', reportSyncUrlService = '${reportSyncUrlService}';`;
+    const pool = await getConnection();
+    const result = await pool.request().query(query);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+};

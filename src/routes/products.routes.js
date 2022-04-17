@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { genericSelect, genericUpdate, getReceiptParameters, getTimeZone, setGeneralConfigurations, setReceiptParameters, setTimeZone } from '../controllers/general.controller'
+import { genericSelect, genericUpdate, getNotificationEmails, getReceiptParameters, getTimeZone, getXONEConfig, setGeneralConfigurations, setReceiptParameters, setTimeZone, setXONEConfig } from '../controllers/general.controller'
 
 const router = Router();
 
@@ -13,6 +13,13 @@ router.post("/time-zone", setTimeZone);
 
 router.get("/receipt-parameter", getReceiptParameters);
 router.post("/receipt-parameter", setReceiptParameters);
+
+router.get("/notification-emails", getNotificationEmails);
+router.post("/notification-emails", getReceiptParameters);
+router.delete("/notification-emails", getReceiptParameters);
+
+router.get("/xone-config", getXONEConfig);
+router.post("/xone-config", setXONEConfig);
 
 
 export default router;
