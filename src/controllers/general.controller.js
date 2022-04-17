@@ -220,3 +220,40 @@ export const setXONEConfig = async (req, res) => {
     res.send(error.message);
   }
 };
+
+/**
+ * getDashboardConfig gets the dashboard configurations
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
+ export const getDashboardConfig = async (req, res) => {
+  try {
+    const pool = await getConnection();
+    const result = await pool.request().query(querys.selectDashboardConfig);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+};
+
+/**
+ * setDashboardConfig performs an update on url dashboard parameter
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
+ export const setDashboardConfig = async (req, res) => {
+  try {
+    const url = req.body[0]["value"];
+    console.log(url);
+    const query = `UPDATE T_PA_EXTERNAL_DASHBOARD SET url = '${url}' WHERE id = 1;`;
+    const pool = await getConnection();
+    const result = await pool.request().query(query);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+};

@@ -5,4 +5,6 @@ export const querys = {
   updateReceiptParameters: "UPDATE T_POS_RECEIPT_FISCAL_PRINTER SET receipt_description = 'IVA 15%' WHERE receipt_id = 8",
   selectNotificationEmails: "SELECT Correo, EnviarInventario, EnviarVentas FROM DESTINATARIO",
   selectXONEConfig: "SELECT idBranch, reportSyncUrlService FROM T_XSC_CONFIG",
+  selectDashboardConfig: "SELECT url FROM T_PA_EXTERNAL_DASHBOARD WHERE id = 1",
+
 };
