@@ -24,7 +24,7 @@ export const genericUpdate = async (req, res) => {
     const tableName = req.body.tableName;
     let query = "";
     records.forEach(record => {
-      query += `UPDATE ${tableName} SET ${record.setProperty} = '${record.setValue}' WHERE ${record.conditionProperty} = ${record.conditionValue};`
+      query += `UPDATE ${tableName} SET ${record.setProperty} = '${record.setValue}' WHERE ${record.conditionProperty} = '${record.conditionValue}';`
     });
     const pool = await getConnection();
     const result = await pool.request().query(query);
@@ -308,3 +308,21 @@ export const setDashboardConfig = async (req, res) => {
     res.send(error.message);
   }
 };
+
+/**
+ * getPaymentMethods gets the payment methods configurations
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
+ export const getPaymentMethods = async (req, res) => {
+  try {
+    const pool = await getConnection();
+    const result = await pool.request().query(querys.selectPaymentMethods);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+};
+

@@ -6,5 +6,5 @@ export const querys = {
   selectNotificationEmails: "SELECT Correo, EnviarInventario, EnviarVentas FROM DESTINATARIO",
   selectXONEConfig: "SELECT idBranch, reportSyncUrlService FROM T_XSC_CONFIG",
   selectDashboardConfig: "SELECT url FROM T_PA_EXTERNAL_DASHBOARD WHERE id = 1",
-
+  selectPaymentMethods: "SELECT payform_id, payform_description, code_timbra_payform FROM T_POS_PAYFORM",
 };
