@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { deleteNotificationEmails, genericSelect, genericUpdate, getDashboardConfig, getNotificationEmails, getPaymentMethods, getReceiptParameters, getTimeZone, getXONEConfig, setDashboardConfig, setGeneralConfigurations, setNotificationEmails, setReceiptParameters, setTimeZone, setXONEConfig } from '../controllers/general.controller'
+import { deleteNotificationEmails, genericSelect, genericUpdate, getDashboardConfig, getInvoiceConfig, getNotificationEmails, getPaymentMethods, getReceiptParameters, getTimeZone, getXONEConfig, setDashboardConfig, setGeneralConfigurations, setInvoiceConfig, setNotificationEmails, setReceiptParameters, setTimeZone, setXONEConfig } from '../controllers/general.controller'
 
 const router = Router();
 
@@ -26,5 +26,8 @@ router.post("/dashboard-config", setDashboardConfig);
 
 
 router.get("/payment-methods", getPaymentMethods);
+
+router.get("/invoice-config", getInvoiceConfig);
+router.post("/invoice-config", setInvoiceConfig);
 
 export default router;

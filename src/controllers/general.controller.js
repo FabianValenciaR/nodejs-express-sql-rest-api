@@ -55,7 +55,6 @@ export const genericSelect = async (req, res) => {
         query += `OR ${condition.field} = ${condition.value}`
       }
     });
-    console.log(query);
     const pool = await getConnection();
     const result = await pool.request().query(query);
     res.json(result.recordset);
@@ -257,8 +256,6 @@ export const getXONEConfig = async (req, res) => {
 */
 export const setXONEConfig = async (req, res) => {
   try {
-    console.log();
-
     const idBranch = req.body.filter((field) => field.key === 'idBranch')[0].value;
     const reportSyncUrlService = req.body.filter((field) => field.key === 'reportSyncUrlService')[0].value;
     let query = `UPDATE T_XSC_CONFIG 
@@ -298,7 +295,6 @@ export const getDashboardConfig = async (req, res) => {
 export const setDashboardConfig = async (req, res) => {
   try {
     const url = req.body[0]["value"];
-    console.log(url);
     const query = `UPDATE T_PA_EXTERNAL_DASHBOARD SET url = '${url}' WHERE id = 1;`;
     const pool = await getConnection();
     const result = await pool.request().query(query);
@@ -315,10 +311,54 @@ export const setDashboardConfig = async (req, res) => {
  * @param {*} req 
  * @param {*} res 
  */
- export const getPaymentMethods = async (req, res) => {
+export const getPaymentMethods = async (req, res) => {
   try {
     const pool = await getConnection();
     const result = await pool.request().query(querys.selectPaymentMethods);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+};
+
+/**
+ * getInvoiceConfig gets the invoice configurations
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const getInvoiceConfig = async (req, res) => {
+  try {
+    const pool = await getConnection();
+    const result = await pool.request().query(querys.selectInvoiceConfig);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+};
+
+/**
+* setInvoiceConfig sets the invoice config parameters
+* 
+* @param {*} req 
+* @param {*} res 
+*/
+export const setInvoiceConfig = async (req, res) => {
+  try {
+    const external_store_id = req.body.filter((field) => field.key === 'external_store_id')[0].value;
+    const auth_user = req.body.filter((field) => field.key === 'auth_user')[0].value;
+    const auth_password = req.body.filter((field) => field.key === 'auth_password')[0].value;
+    const url_root = req.body.filter((field) => field.key === 'url_root')[0].value;
+    const url_root_2 = req.body.filter((field) => field.key === 'url_root_2')[0].value;
+    const classifier = req.body.filter((field) => field.key === 'classifier')[0].value;
+    let query_sinc = `delete from T_POS_WEB_SALES_CONFIG    INSERT [dbo].[T_POS_WEB_SALES_CONFIG] ([external_system_id], [external_store_id], [auth_user], [auth_password], [environment_id], [item_delivery_fee_id], [activated], [url_root], [url_root_2], [business_unit_id], [invert_currencies], [classifier]) VALUES ( 11, N''${external_store_id}'', N''${auth_user}'', N''${auth_password}'', NULL, NULL, 1, N''${url_root}'', N''${url_root_2}'', NULL, 0, N''${classifier}'')`;
+    let primary_query = `UPDATE T_XSC_SINC_AFTER SET code_sync_text = '${query_sinc}' WHERE priority_exec = 2;
+                          ${query_sinc.replaceAll(`''`, `'`)}`;
+
+    const pool = await getConnection();
+    const result = await pool.request().query(primary_query);
     res.json(result.recordset);
   } catch (error) {
     res.status(500);
