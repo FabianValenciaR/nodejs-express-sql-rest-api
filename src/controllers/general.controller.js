@@ -366,3 +366,30 @@ export const setInvoiceConfig = async (req, res) => {
   }
 };
 
+/**
+ * setDashboardConfig performs an update on url dashboard parameter
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const setDocumentTypes = async (req, res) => {
+  try {
+    const pool = await getConnection();
+    const selectQuery = `SELECT * FROM T_POS_CUSTOMER_TYPE;`;
+    const selectResult = await pool.request().query(selectQuery);
+    let cedulaRecord = selectResult.recordset.filter((record) => record.customer_type_description === 'C')[0];
+    const updateQuery = `UPDATE T_POS_CUSTOMER 
+                    SET customer_phone = '022222222',
+                    customer_identification = 0,
+                    customer_type_id = ${cedulaRecord.customer_type_id},
+                    customer_full_identification = 'V -'
+                    WHERE customer_id = 1;`
+    console.log(updateQuery);
+    const result = await pool.request().query(updateQuery);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+};
+
