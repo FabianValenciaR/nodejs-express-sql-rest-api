@@ -393,3 +393,41 @@ export const setDocumentTypes = async (req, res) => {
   }
 };
 
+/**
+ * setCurrencyConfiguration update currency configuration
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const setCurrencyConfiguration = async (req, res) => {
+  try {
+    const pool = await getConnection();
+    const selectQuery = `SELECT * FROM T_POS_CURRENCY;`;
+    const selectResult = await pool.request().query(selectQuery);
+    let currencyId = selectResult.recordset.filter((record) => record.currency_description === 'USD')[0].currency_id;
+
+    const updateCurrency = `DELETE FROM T_POS_CURRENCY_COIN 
+                                WHERE currency_id <> ${currencyId};
+    
+                              UPDATE T_POS_CURRENCY_EQUIVALENCY
+                                SET base_currency_id =  ${currencyId},
+                                factor = 1,
+                                factor_to_print = 1,
+                                math_operation_id = 1,
+                                math_operation_factor = 1;
+                                
+                              UPDATE T_XSC_POS_CURRENCY_EQUIVALENCY
+                                SET base_currency_id =  ${currencyId},
+                                factor = 1,
+                                factor_to_print = 1,
+                                math_operation_id = 1,
+                                math_operation_factor = 1;`
+
+    const result = await pool.request().query(updateCurrency);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+};
+
+
