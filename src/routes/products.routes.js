@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import { deleteNotificationEmails, genericSelect, genericUpdate, getDashboardConfig, getInvoiceConfig, getNotificationEmails, getPaymentMethods, getReceiptParameters, getTimeZone, getXONEConfig, setCurrencyConfiguration, setDashboardConfig, setDocumentTypes, setGeneralConfigurations, setInvoiceConfig, setNotificationEmails, setReceiptParameters, setTimeZone, setXONEConfig } from '../controllers/general.controller'
+import { deleteNotificationEmails, genericSelect, genericUpdate, getDashboardConfig, getInvoiceConfig, getNotificationEmails, getPaymentMethods, getReceiptParameters, getTimeZone, getXONEConfig, goLive, setCurrencyConfiguration, setDashboardConfig, setDocumentTypes, setGeneralConfigurations, setInvoiceConfig, setNotificationEmails, setReceiptParameters, setTimeZone, setXONEConfig } from '../controllers/general.controller'
 
 const router = Router();
 
@@ -33,6 +33,8 @@ router.post("/invoice-config", setInvoiceConfig);
 router.post("/document-types", setDocumentTypes);
 
 router.post("/currency-config", setCurrencyConfiguration);
+
+router.post("/go-live", goLive);
 
 
 export default router;
