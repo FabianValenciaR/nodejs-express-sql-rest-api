@@ -1,3 +1,4 @@
+import { INVOICE_STATUS } from "../constants/invoice";
 import { getConnection, querys } from "../database";
 
 
@@ -440,7 +441,7 @@ export const goLive = async (req, res) => {
     const pool = await getConnection();
     const sequenceNumber = Number(req.body.sequencial);
     const goLiveQuery =
-    `UPDATE T_POS_ITEM SET last_stock = 0;
+      `UPDATE T_POS_ITEM SET last_stock = 0;
     UPDATE T_POS_ITEM_WAREHOUSE SET lastStock = 0;
     UPDATE T_POS_WAREHOUSE SET is_sale = 1;
     
@@ -603,6 +604,48 @@ export const goLive = async (req, res) => {
 
     const result = await pool.request().query(goLiveQuery);
     res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+};
+
+/**
+ * getInvoices get invoices with pagination
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const getInvoices = async (req, res) => {
+  try {
+    let numPerPage = parseInt(req.body.npp, 10) || 1;
+    let page = parseInt(req.body.page, 10) || 0;
+    let status = req.body.status || INVOICE_STATUS.AUTHORIZED;
+    let skip = page * numPerPage;
+    let statusOperator = status == INVOICE_STATUS.AUTHORIZED ? '= 11' : '<> 11';
+
+    const pool = await getConnection();
+    const countResult = await pool.request().query(`SELECT count(*) as numRows FROM T_POS_EXTERNAL_BILLING_INFO WHERE status ${statusOperator} AND created_at > DATEADD(MONTH,-1,GETDATE())`);
+    const numRows = countResult.recordset[0].numRows;
+    let numPages = Math.ceil(numRows / numPerPage);
+
+    let query = `SELECT * FROM T_POS_EXTERNAL_BILLING_INFO WHERE status ${statusOperator} AND created_at > DATEADD(MONTH,-1,GETDATE()) ORDER BY id DESC OFFSET ${skip} ROWS FETCH NEXT ${numPerPage} ROWS ONLY;`;
+    let result = await pool.request().query(query);
+
+    var responsePayload = {
+      results: result.recordset
+    };
+    if (page < numPages) {
+      responsePayload.pagination = {
+        current: page,
+        perPage: numPerPage,
+        previous: page > 0 ? page - 1 : undefined,
+        next: page < numPages - 1 ? page + 1 : undefined
+      }
+    }
+    else responsePayload.pagination = {
+      err: 'queried page ' + page + ' is >= to maximum page number ' + numPages
+    }
+    res.json(responsePayload);
   } catch (error) {
     res.status(500);
     res.send(error.message);
