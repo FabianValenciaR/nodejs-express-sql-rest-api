@@ -385,7 +385,6 @@ export const setDocumentTypes = async (req, res) => {
                     customer_type_id = ${cedulaRecord.customer_type_id},
                     customer_full_identification = 'V -'
                     WHERE customer_id = 1;`
-    console.log(updateQuery);
     const result = await pool.request().query(updateQuery);
     res.json(result.recordset);
   } catch (error) {
@@ -639,7 +638,8 @@ export const getInvoices = async (req, res) => {
         current: page,
         perPage: numPerPage,
         previous: page > 0 ? page - 1 : undefined,
-        next: page < numPages - 1 ? page + 1 : undefined
+        next: page < numPages - 1 ? page + 1 : undefined,
+        totalRecords: numRows
       }
     }
     else responsePayload.pagination = {
