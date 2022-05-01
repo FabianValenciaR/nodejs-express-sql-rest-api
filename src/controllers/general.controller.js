@@ -295,8 +295,16 @@ export const getDashboardConfig = async (req, res) => {
  */
 export const setDashboardConfig = async (req, res) => {
   try {
-    const url = req.body[0]["value"];
-    const query = `UPDATE T_PA_EXTERNAL_DASHBOARD SET url = '${url}' WHERE id = 1;`;
+    let id = req.body.filter((field) => field.key === 'id')[0].value;
+    let url = req.body.filter((field) => field.key === 'url')[0].value;
+    let position = req.body.filter((field) => field.key === 'position')[0].value;
+    let frame_height = req.body.filter((field) => field.key === 'frame_height')[0].value;
+    const query = `UPDATE T_PA_EXTERNAL_DASHBOARD
+                    SET url = '${url}',
+                    position = '${position}',
+                    frame_height = '${frame_height}',
+                    created_at = GETDATE()
+                    WHERE id = '${id}'`;
     const pool = await getConnection();
     const result = await pool.request().query(query);
     res.json(result.recordset);
