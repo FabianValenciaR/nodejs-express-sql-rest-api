@@ -620,14 +620,30 @@ export const getInvoices = async (req, res) => {
     let page = parseInt(req.body.page, 10) || 0;
     let status = req.body.status || INVOICE_STATUS.AUTHORIZED;
     let skip = page * numPerPage;
-    let statusOperator = status == INVOICE_STATUS.AUTHORIZED ? '= 11' : '<> 11';
+    let statusCondition = '';
+    switch (req.body.status) {
+      case INVOICE_STATUS.AUTHORIZED:
+        statusCondition = 'status = 11';
+        break;
 
+      case INVOICE_STATUS.NO_AUTHORIZED:
+        statusCondition = 'status <> 11 OR status <> 0';
+        break;
+
+      case INVOICE_STATUS.FORWARDED:
+        statusCondition = 'status = 0';
+        break;
+
+      default:
+        statusCondition = 'status = 11';
+        break;
+    }
     const pool = await getConnection();
-    const countResult = await pool.request().query(`SELECT count(*) as numRows FROM T_POS_EXTERNAL_BILLING_INFO WHERE status ${statusOperator} AND created_at > DATEADD(MONTH,-1,GETDATE())`);
+    const countResult = await pool.request().query(`SELECT count(*) as numRows FROM T_POS_EXTERNAL_BILLING_INFO WHERE ${statusCondition} AND created_at > DATEADD(MONTH,-1,GETDATE())`);
     const numRows = countResult.recordset[0].numRows;
     let numPages = Math.ceil(numRows / numPerPage);
 
-    let query = `SELECT * FROM T_POS_EXTERNAL_BILLING_INFO WHERE status ${statusOperator} AND created_at > DATEADD(MONTH,-1,GETDATE()) ORDER BY id DESC OFFSET ${skip} ROWS FETCH NEXT ${numPerPage} ROWS ONLY;`;
+    let query = `SELECT * FROM T_POS_EXTERNAL_BILLING_INFO WHERE ${statusCondition} AND created_at > DATEADD(MONTH,-1,GETDATE()) ORDER BY id DESC OFFSET ${skip} ROWS FETCH NEXT ${numPerPage} ROWS ONLY;`;
     let result = await pool.request().query(query);
 
     var responsePayload = {
@@ -651,4 +667,75 @@ export const getInvoices = async (req, res) => {
     res.send(error.message);
   }
 };
+
+/**
+ * getCustomerInformation get the information from a customer
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const getCustomerInformation = async (req, res) => {
+  try {
+    let customerId = req.params.customerId;
+    let selectQuery = `SELECT customer_id, customer_identification, customer_full_identification, customer_type_id FROM T_POS_CUSTOMER 
+                  WHERE customer_identification = '${customerId}';`;
+    const pool = await getConnection();
+    const result = await pool.request().query(selectQuery);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+}
+
+/**
+ * updateCustomerInformation update customer information
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const updateCustomerInformation = async (req, res) => {
+  try {
+    let customer_id = req.body.filter((field) => field.key === 'customer_id')[0].value;
+    let customer_identification = req.body.filter((field) => field.key === 'customer_identification')[0].value;
+    let customer_full_identification = req.body.filter((field) => field.key === 'customer_full_identification')[0].value;
+    let customer_type_id = req.body.filter((field) => field.key === 'customer_type_id')[0].value;
+    const pool = await getConnection();
+    const updateCustomerInfo = `UPDATE T_POS_CUSTOMER
+                                SET customer_identification = '${customer_identification}', 
+                                customer_full_identification =  '${customer_full_identification}',
+                                customer_type_id =  '${customer_type_id}'
+                                WHERE customer_id = '${customer_id}';`
+    const result = await pool.request().query(updateCustomerInfo);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+};
+
+/**
+ * forwardInvoice re send invoice
+ * @param {*} req 
+ * @param {*} res 
+ */
+export const forwardInvoice = async (req, res) => {
+  try {
+    let bill_id = req.body.bill_id;
+    const pool = await getConnection();
+    const fordwardInvoiceQuery = `UPDATE T_POS_EXTERNAL_BILLING_INFO
+                                SET status = 0, 
+                                created_at =  GETDATE(),
+                                updated_at =  NULL,
+                                response =  NULL,
+                                request =  NULL
+                                WHERE bill_id = '${bill_id}';`
+    console.log(fordwardInvoiceQuery);
+    const result = await pool.request().query(fordwardInvoiceQuery);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+};
+
 
