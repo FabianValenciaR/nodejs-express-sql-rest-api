@@ -3,7 +3,7 @@ import config from "../config";
 
 export const dbSettings = {
   user: "PowerUser",
-  password: "k8a3z7up",
+  password: "k8a3z7up1",
   server: "localhost",
   database: "XETUXPOS",
   options: {

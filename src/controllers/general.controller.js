@@ -746,7 +746,6 @@ export const forwardInvoice = async (req, res) => {
                                 response =  NULL,
                                 request =  NULL
                                 WHERE bill_id = '${bill_id}';`
-    console.log(fordwardInvoiceQuery);
     const result = await pool.request().query(fordwardInvoiceQuery);
     res.json(result.recordset);
   } catch (error) {
