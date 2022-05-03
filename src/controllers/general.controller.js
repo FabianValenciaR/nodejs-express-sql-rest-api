@@ -295,17 +295,26 @@ export const getDashboardConfig = async (req, res) => {
  */
 export const setDashboardConfig = async (req, res) => {
   try {
+    const pool = await getConnection();
     let id = req.body.filter((field) => field.key === 'id')[0].value;
     let url = req.body.filter((field) => field.key === 'url')[0].value;
     let position = req.body.filter((field) => field.key === 'position')[0].value;
     let frame_height = req.body.filter((field) => field.key === 'frame_height')[0].value;
-    const query = `UPDATE T_PA_EXTERNAL_DASHBOARD
-                    SET url = '${url}',
-                    position = '${position}',
-                    frame_height = '${frame_height}',
-                    created_at = GETDATE()
-                    WHERE id = '${id}'`;
-    const pool = await getConnection();
+    const countResult = await pool.request().query(`SELECT count(*) as numRows FROM T_PA_EXTERNAL_DASHBOARD`);
+    const numRows = countResult.recordset[0].numRows;
+    let query = "";
+    if (numRows === 0) {
+      query = `INSERT INTO T_PA_EXTERNAL_DASHBOARD
+                (description, url, position, frame_height, status_id, created_at)
+                VALUES ('DashBoard', '${url}', '${position}', '${frame_height}', 1, GETDATE())`;
+    } else {
+      query = `UPDATE T_PA_EXTERNAL_DASHBOARD
+      SET url = '${url}',
+      position = '${position}',
+      frame_height = '${frame_height}',
+      created_at = GETDATE()
+      WHERE id = '${id}'`;
+    }
     const result = await pool.request().query(query);
     res.json(result.recordset);
   } catch (error) {
@@ -414,7 +423,7 @@ export const setCurrencyConfiguration = async (req, res) => {
     let currencyId = selectResult.recordset.filter((record) => record.currency_description === 'USD')[0].currency_id;
 
     const updateCurrency = `DELETE FROM T_POS_CURRENCY_COIN 
-                                WHERE currency_id <> ${currencyId};
+                              WHERE currency_id <> ${currencyId};
     
                               UPDATE T_POS_CURRENCY_EQUIVALENCY
                                 SET base_currency_id =  ${currencyId},
@@ -635,7 +644,7 @@ export const getInvoices = async (req, res) => {
         break;
 
       case INVOICE_STATUS.NO_AUTHORIZED:
-        statusCondition = 'status <> 11 OR status <> 0';
+        statusCondition = 'status <> 11 AND status <> 0';
         break;
 
       case INVOICE_STATUS.FORWARDED:
