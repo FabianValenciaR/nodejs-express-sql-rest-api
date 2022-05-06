@@ -421,9 +421,12 @@ export const setCurrencyConfiguration = async (req, res) => {
     const selectQuery = `SELECT * FROM T_POS_CURRENCY;`;
     const selectResult = await pool.request().query(selectQuery);
     let currencyId = selectResult.recordset.filter((record) => record.currency_description === 'USD')[0].currency_id;
+    // Si el currencyId no es 1 hay que user ALTER INSERT para poder alterar primary key
 
+    // Para todos los registros de abajo quedan en 1 
     const updateCurrency = `DELETE FROM T_POS_CURRENCY_COIN 
                               WHERE currency_id <> ${currencyId};
+                              
     
                               UPDATE T_POS_CURRENCY_EQUIVALENCY
                                 SET base_currency_id =  ${currencyId},
@@ -753,5 +756,23 @@ export const forwardInvoice = async (req, res) => {
     res.send(error.message);
   }
 };
+
+/**
+ * getCustomerTypes get customer types
+ * 
+ * @param {*} req 
+ * @param {*} res 
+ */
+ export const getCustomerTypes = async (req, res) => {
+  try {
+    let selectQuery = `SELECT * FROM T_POS_CUSTOMER_TYPE;`;
+    const pool = await getConnection();
+    const result = await pool.request().query(selectQuery);
+    res.json(result.recordset);
+  } catch (error) {
+    res.status(500);
+    res.send(error.message);
+  }
+}
 
 
